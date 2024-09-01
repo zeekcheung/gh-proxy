@@ -51,7 +51,13 @@ async function fetchHandler(req: Request) {
 
   const urlObj = new URL(req.url);
   let targetUrl = urlObj.href.slice(urlObj.origin.length + 1);
+  targetUrl = targetUrl.length === 0 ? 'https://github.com' : targetUrl;
   // console.log(targetUrl);
+
+  // Add protocol and host if not present
+  if (targetUrl.length > 0 && targetUrl.search(/^https?:\/\//) === -1) {
+    targetUrl = 'https://github.com/' + targetUrl;
+  }
 
   // Block request if not in whitelist
   const whitelistEnabled = WHITELIST.length > 0;
@@ -64,11 +70,6 @@ async function fetchHandler(req: Request) {
   // if (GITHUB_REGEX.blob.test(targetUrl)) {
   //   targetUrl = targetUrl.replace('/blob/', '/raw/');
   // }
-
-  // Add protocol if not present
-  if (targetUrl.length > 0 && targetUrl.search(/^https?:\/\//) === -1) {
-    targetUrl = 'https://' + targetUrl;
-  }
 
   // Porxy to target server
   return proxy(targetUrl, {
